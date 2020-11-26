@@ -100,16 +100,37 @@ def main():
             constant_curr_addr += var_data['addr_offset']
             continue
 
-        #all are non-array variable
-        name = f"{var_name}"
-        addr_offset = calc_addr_offset_hmi_tag(is_array=False, var_type=var_data['type'], 
-                                               offset=var_data['addr_offset'])
-        var_type = translate_var_type_hmi_tag(var_type=var_data['type'])
-        addr = hmi_tag_plc_name + \
-               "D{}".format( round(float(constant_curr_addr), 1) if "BOOL" in shelf_data['type'] else int (constant_curr_addr))
+        # check if variable is an array
+        if "ARRAY" in var_data['type']:
+            array_size = get_array_size(var_data['type'])
+            array_type = get_array_type(var_data['type'])
+            constant_arr_addr = constant_curr_addr
 
-        write_rec_hmi_tag_table(hmi_tag_table, name, var_type, addr)
-        constant_curr_addr += addr_offset
+            for j in range(array_size):
+                name = f"{var_name}{j}"
+                addr_offset = calc_addr_offset_hmi_tag(is_array=True, var_type=array_type, 
+                                                       offset=var_data['addr_offset'])
+                var_type = translate_var_type_hmi_tag(var_type=array_type)
+
+                addr = hmi_tag_plc_name + \
+                       "D{}".format( round(float(constant_arr_addr), 1) if "BOOL" in var_data['type'] else int (constant_arr_addr) )
+                
+                constant_arr_addr += addr_offset
+                write_rec_hmi_tag_table(hmi_tag_table, name, var_type, addr)
+
+            constant_curr_addr += var_data['addr_offset']
+
+        # non-array variable
+        else:
+            name = f"{var_name}"
+            addr_offset = calc_addr_offset_hmi_tag(is_array=False, var_type=var_data['type'], 
+                                                offset=var_data['addr_offset'])
+            var_type = translate_var_type_hmi_tag(var_type=var_data['type'])
+            addr = hmi_tag_plc_name + \
+                "D{}".format( round(float(constant_curr_addr), 1) if "BOOL" in shelf_data['type'] else int (constant_curr_addr))
+
+            write_rec_hmi_tag_table(hmi_tag_table, name, var_type, addr)
+            constant_curr_addr += addr_offset
     
     # parse pump_data and write into hmi_tag_table
     pump_curr_addr = pump_base_addr
@@ -199,6 +220,7 @@ def main():
                 write_rec_hmi_tag_table(hmi_tag_table, name, var_type, addr)
                 shelf_curr_addr += addr_offset
 
+    # addr: shelf_no -> sensorlist>shelf_sensor -> sensordata>variable_name
     # parse sensors, sensor_data and write into global_var_table
     # parse sensors, sensor_data and write into hmi_tag_table
     addr_offset = 1
@@ -412,8 +434,6 @@ def calc_addr_offset_hmi_tag(is_array: bool, var_type: str, offset: str) -> Unio
         return (0.1) if is_array else float(offset)
     elif var_type == "WORD":
         return (1) if is_array else int(offset)
-    elif var_type == "INT":
-        return int(offset)
     else:
         raise RuntimeError("Invalid type")
 
@@ -422,8 +442,6 @@ def translate_var_type_hmi_tag(var_type: str) -> str:
         return "BIT"
     elif var_type == "WORD":
         return "WORD"
-    elif var_type == "INT":
-        return "BIT"
     else:
         raise RuntimeError("Invalid type")
 
