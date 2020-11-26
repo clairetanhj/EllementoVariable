@@ -59,16 +59,16 @@ def main():
     hmi_tag_table = {}
 
     # parse constants and write into global_var_table
-    constant_curr_addr = pump_base_addr
+    constant_curr_addr = constant_base_addr
     for var_name in constants:
         var_data = constants[var_name]
         
-        addr = "D{}".format(round(float(constant_curr_addr), 1) if "BOOL" in var_data['type'] else int (constant_curr_addr) )
         constant_curr_addr += int(var_data['addr_offset'])
+        addr = "D{}".format(round(float(constant_curr_addr), 1) if "BOOL" in var_data['type'] else int (constant_curr_addr) )
         
         write_rec_glob_var_table(global_var_table, var_name, addr, var_data['type'], var_data['init_value'])
 
-    # parse pump_data and write into global_var_tabe
+    # parse pump_data and write into global_var_table
     pump_curr_addr = pump_base_addr
     for var_name in pumps:
         pump_data = pumps[var_name]
@@ -89,7 +89,28 @@ def main():
             shelf_curr_addr += int(shelf_data['addr_offset'])
 
             write_rec_glob_var_table(global_var_table, name, addr, shelf_data['type'], shelf_data['init_value'])
+    
+    # parse constants and write into hmi_tag_table
+    constant_curr_addr = constant_base_addr
+    for var_name in constants:
+        var_data = constants[var_name]
 
+        # filter those that should go into hmi_tag
+        if not var_data['hmi_tag']:
+            constant_curr_addr += var_data['addr_offset']
+            continue
+
+        #all are non-array variable
+        name = f"{var_name}"
+        addr_offset = calc_addr_offset_hmi_tag(is_array=False, var_type=var_data['type'], 
+                                               offset=var_data['addr_offset'])
+        var_type = translate_var_type_hmi_tag(var_type=var_data['type'])
+        addr = hmi_tag_plc_name + \
+               "D{}".format( round(float(constant_curr_addr), 1) if "BOOL" in shelf_data['type'] else int (constant_curr_addr))
+
+        write_rec_hmi_tag_table(hmi_tag_table, name, var_type, addr)
+        constant_curr_addr += addr_offset
+    
     # parse pump_data and write into hmi_tag_table
     pump_curr_addr = pump_base_addr
     for var_name in pumps:
@@ -391,15 +412,18 @@ def calc_addr_offset_hmi_tag(is_array: bool, var_type: str, offset: str) -> Unio
         return (0.1) if is_array else float(offset)
     elif var_type == "WORD":
         return (1) if is_array else int(offset)
+    elif var_type == "INT":
+        return int(offset)
     else:
         raise RuntimeError("Invalid type")
-
 
 def translate_var_type_hmi_tag(var_type: str) -> str:
     if var_type == "BOOL":
         return "BIT"
     elif var_type == "WORD":
         return "WORD"
+    elif var_type == "INT":
+        return "BIT"
     else:
         raise RuntimeError("Invalid type")
 
