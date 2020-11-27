@@ -36,32 +36,36 @@ def main():
     os.system("mv global_variable_table.csv new_global_variable_table.csv")
     os.system("mv hmi_tag.csv new_hmi_tag.csv")
 
-    #extract tables
+    #extract names as tables
     old_plc_table = pd.read_csv("old_global_variable_table.csv")
     new_plc_table = pd.read_csv("new_global_variable_table.csv")
     old_hmi_table = pd.read_csv("old_hmi_tag.csv")
     new_hmi_table = pd.read_csv("new_hmi_tag.csv")
 
+    old_plc_names = pd.DataFrame(old_plc_table['Identifiers'])
+    new_plc_names = pd.DataFrame(new_plc_table['Identifiers'])
+    old_hmi_names = pd.DataFrame(old_hmi_table['Define Name'])
+    new_hmi_names = pd.DataFrame(new_hmi_table['Define Name'])
+
     #check if plc tables are equal and find inconsistencies
-    if new_plc_table.equals(old_plc_table):
+    if new_plc_names.equals(old_plc_names):
         print ("Global Variable Tables are consistent\n")
 
     else :
         print ("Global Variable Tables are inconsistent\n")
 
-        difference = dataframe_difference(old_plc_table,new_plc_table)
+        difference = dataframe_difference(old_plc_names,new_plc_names)
         print (difference)
 
     #check if hmi tables are equal and find inconsistencies
-    if new_hmi_table.equals(old_hmi_table):
+    if new_hmi_names.equals(old_hmi_names):
         print ("HMI Tag tables are consistent\n")
 
     else :
         print ("HMI Tag tables are inconsistent\n")
 
-        difference = dataframe_difference(old_plc_table,new_plc_table)
+        difference = dataframe_difference(old_plc_names,new_plc_names)
         print (difference)
-
 
 def dataframe_difference(df1, df2):
 

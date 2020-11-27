@@ -23,7 +23,7 @@ import numpy as np
 def main():
 
     # parameter
-    if len(sys.argv) > 1:
+    if len(sys.argv) == 2:
         input_name = sys.argv[1]
     else:
         input_name = "global_variable_template.xlsx"
