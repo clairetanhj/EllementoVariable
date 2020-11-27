@@ -4,7 +4,9 @@
     - reads the results generated from 2 different scripts
     - checks if the results are the same
 
-    run in same directory as scripts to be checked
+    To use:
+    - run in same directory as scripts to be checked
+    - in terminal, input "python check-results.py script1.py script2.py"
 
 """
 
@@ -45,8 +47,9 @@ def main():
     else :
         print ("\nGlobal Variable Tables are inconsistent")
 
-        dataframe_difference(old_plc_table,new_plc_table)
-    
+        difference = dataframe_difference(old_plc_table,new_plc_table)
+        print (difference)
+
     #check if hmi tables are equal and find inconsistencies
     if new_hmi_table.equals(old_hmi_table):
         print ("\nHMI Tag tables are consistent")
@@ -54,13 +57,14 @@ def main():
     else :
         print ("\nHMI Tag tables are inconsistent")
 
-        dataframe_difference(old_plc_table,new_plc_table)
+        difference = dataframe_difference(old_plc_table,new_plc_table)
+        print (difference)
+
 
 def dataframe_difference(df1, df2):
 
     compare = df1.merge(df2, how='outer', indicator=True)
     difference = compare[compare['_merge'] != 'both']
-    print (difference)
 
     return difference
 
