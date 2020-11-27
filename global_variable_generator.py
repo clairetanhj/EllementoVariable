@@ -223,8 +223,8 @@ def main():
     # parse sensors, sensor_data and write into global_var_table
     # parse sensors, sensor_data and write into hmi_tag_table
     addr_offset = 1
-    for snsr_name in sensors['shelf_sensors']:
-        for i in range(shelf_no):
+    for i in range(shelf_no):
+        for snsr_name in sensors['shelf_sensors']:
             for j, var_name in enumerate(sensor_data):
                 data = sensor_data[var_name]
                 name = "snsr_s{}_{}_{}".format(i, snsr_name, var_name)
