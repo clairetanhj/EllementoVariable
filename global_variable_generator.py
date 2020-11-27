@@ -42,8 +42,8 @@ def main():
     # read data from tables
     constant_base_addr, constants = read_var_table(constant_table)
     shelf_base_addr, shelfs = read_var_table(shelf_table)
-    sensor_base_addr, sensors = read_sensor_list_table(sensor_list_table)
-    sensor_data = read_sensor_data_table(sensor_data_table)
+    sensors = read_sensor_list_table(sensor_list_table)
+    sensor_base_addr, sensor_data = read_var_table(sensor_data_table)
     pump_base_addr, pumps = read_var_table(pump_data_table)
     io_data = read_io_mapping_table(io_mapping_table)
     hmi_base_addr, hmi_internal = read_hmi_internal_table(hmi_data_table)
@@ -220,7 +220,6 @@ def main():
                 write_rec_hmi_tag_table(hmi_tag_table, name, var_type, addr)
                 shelf_curr_addr += addr_offset
 
-    # addr: shelf_no -> sensorlist>shelf_sensor -> sensordata>variable_name
     # parse sensors, sensor_data and write into global_var_table
     # parse sensors, sensor_data and write into hmi_tag_table
     addr_offset = 1
@@ -310,30 +309,15 @@ def read_var_table(s_table: dict) -> dict:
 
     return s_base_addr, s_dict
 
-
-def read_sensor_data_table(sd_table: dict) -> dict:
-    sd_dict = {}
-    sd_names = sd_table['variable_name'].tolist()
-    sd_types = sd_table['type'].tolist()
-    sd_init_values = sd_table['init_value'].tolist()
-
-    # inject name, type, init_value into dict
-    for sd_name, sd_type, sd_init_value in zip(sd_names, sd_types, sd_init_values):
-        sd_dict[sd_name] = {'type': sd_type, 'init_value': sd_init_value}
-
-    return sd_dict
-
-
 def read_sensor_list_table(sl_table: dict) -> dict:
     sl_dict = {}
-    sl_base_addr = int(sl_table['base_addr'].tolist()[0])
     shelf_sensors = [x for x in sl_table['shelf_sensor'].tolist() if not pd.isna(x)]
     other_sensors = [x for x in sl_table['general_sensor'].tolist() if not pd.isna(x)]
 
     sl_dict['shelf_sensors'] = shelf_sensors
     sl_dict['other_sensors'] = other_sensors
 
-    return sl_base_addr, sl_dict
+    return sl_dict
 
 
 def read_io_mapping_table(io_table: dict) -> dict:
