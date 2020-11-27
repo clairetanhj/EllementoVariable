@@ -13,6 +13,7 @@
 """
 
 from typing import Union
+import sys
 import os
 import csv
 import pandas as pd
@@ -22,7 +23,10 @@ import numpy as np
 def main():
 
     # parameter
-    input_name = "global_variable_template_new.xlsx"
+    if len(sys.argv) > 1:
+        input_name = sys.argv[1]
+    else:
+        input_name = "global_variable_template.xlsx"
     global_var_table_name = "global_variable_table.csv"
     hmi_tag_table_name = "hmi_tag.csv"
     hmi_tag_plc_name = "{EtherLink1}1@"
