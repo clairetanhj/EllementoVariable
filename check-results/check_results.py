@@ -21,9 +21,9 @@ def main():
 
     #takes in files
     old_script = sys.argv[1]
-    old_template = sys.argv[2]
-    new_script = sys.argv[3]
-    new_template = sys.argv[4]
+    new_script = sys.argv[2]
+    old_template = "global_variable_template.xlsx"
+    new_template = "global_variable_template-new.xlsx"
 
     #runs files to generate global_variable_table.csv and hmi_tag.csv
     os.system("python {} {}".format(old_script,old_template))
