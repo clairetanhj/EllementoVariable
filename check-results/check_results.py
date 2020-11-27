@@ -21,16 +21,18 @@ def main():
 
     #takes in files
     old_script = sys.argv[1]
-    new_script = sys.argv[2]
+    old_template = sys.argv[2]
+    new_script = sys.argv[3]
+    new_template = sys.argv[4]
 
     #runs files to generate global_variable_table.csv and hmi_tag.csv
-    os.system("python {}".format(old_script))
-    print("{} ran successfully".format(old_script))
+    os.system("python {} {}".format(old_script,old_template))
+    print("{} ran successfully\n".format(old_script))
     os.system("mv global_variable_table.csv old_global_variable_table.csv")
     os.system("mv hmi_tag.csv old_hmi_tag.csv")
 
-    os.system("python {}".format(new_script))
-    print("{} ran successfully".format(new_script))
+    os.system("python {} {}".format(new_script,new_template))
+    print("{} ran successfully\n".format(new_script))
     os.system("mv global_variable_table.csv new_global_variable_table.csv")
     os.system("mv hmi_tag.csv new_hmi_tag.csv")
 
@@ -42,20 +44,20 @@ def main():
 
     #check if plc tables are equal and find inconsistencies
     if new_plc_table.equals(old_plc_table):
-        print ("\nGlobal Variable Tables are consistent")
+        print ("Global Variable Tables are consistent\n")
 
     else :
-        print ("\nGlobal Variable Tables are inconsistent")
+        print ("Global Variable Tables are inconsistent\n")
 
         difference = dataframe_difference(old_plc_table,new_plc_table)
         print (difference)
 
     #check if hmi tables are equal and find inconsistencies
     if new_hmi_table.equals(old_hmi_table):
-        print ("\nHMI Tag tables are consistent")
+        print ("HMI Tag tables are consistent\n")
 
     else :
-        print ("\nHMI Tag tables are inconsistent")
+        print ("HMI Tag tables are inconsistent\n")
 
         difference = dataframe_difference(old_plc_table,new_plc_table)
         print (difference)
