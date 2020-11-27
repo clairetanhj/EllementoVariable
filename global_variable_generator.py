@@ -43,7 +43,7 @@ def main():
     constant_base_addr, constants = read_var_table(constant_table)
     shelf_base_addr, shelfs = read_var_table(shelf_table)
     sensor_base_addr, sensors = read_sensor_list_table(sensor_list_table)
-    sensor_data = read_sensor_data_table(sensor_data_table)
+    sens_base_addr, sensor_data = read_var_table(sensor_data_table)
     pump_base_addr, pumps = read_var_table(pump_data_table)
     io_data = read_io_mapping_table(io_mapping_table)
     hmi_base_addr, hmi_internal = read_hmi_internal_table(hmi_data_table)
@@ -220,12 +220,11 @@ def main():
                 write_rec_hmi_tag_table(hmi_tag_table, name, var_type, addr)
                 shelf_curr_addr += addr_offset
 
-    # addr: shelf_no -> sensorlist>shelf_sensor -> sensordata>variable_name
     # parse sensors, sensor_data and write into global_var_table
     # parse sensors, sensor_data and write into hmi_tag_table
     addr_offset = 1
-    for snsr_name in sensors['shelf_sensors']:
-        for i in range(shelf_no):
+    for i in range(shelf_no):
+        for snsr_name in sensors['shelf_sensors']:
             for j, var_name in enumerate(sensor_data):
                 data = sensor_data[var_name]
                 name = "snsr_s{}_{}_{}".format(i, snsr_name, var_name)
@@ -290,7 +289,10 @@ def main():
 
 def read_var_table(s_table: dict) -> dict:
     s_dict = {}
-    s_base_addr = int(s_table['base_addr'].tolist()[0])
+    if s_table['base_addr'].tolist()[0] != "-":
+        s_base_addr = int(s_table['base_addr'].tolist()[0])
+    else:
+        s_base_addr = 0
     s_names = s_table['variable_name'].tolist()
     s_addr_offsets = s_table['addr_offset'].tolist()
     s_types = s_table['type'].tolist()
@@ -309,20 +311,6 @@ def read_var_table(s_table: dict) -> dict:
             }
 
     return s_base_addr, s_dict
-
-
-def read_sensor_data_table(sd_table: dict) -> dict:
-    sd_dict = {}
-    sd_names = sd_table['variable_name'].tolist()
-    sd_types = sd_table['type'].tolist()
-    sd_init_values = sd_table['init_value'].tolist()
-
-    # inject name, type, init_value into dict
-    for sd_name, sd_type, sd_init_value in zip(sd_names, sd_types, sd_init_values):
-        sd_dict[sd_name] = {'type': sd_type, 'init_value': sd_init_value}
-
-    return sd_dict
-
 
 def read_sensor_list_table(sl_table: dict) -> dict:
     sl_dict = {}
