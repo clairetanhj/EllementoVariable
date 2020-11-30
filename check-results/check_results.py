@@ -20,10 +20,14 @@ import numpy as np
 def main():
 
     #takes in files
-    old_script = sys.argv[1]
-    new_script = sys.argv[2]
-    old_template = "global_variable_template.xlsx"
-    new_template = "global_variable_template-new.xlsx"
+    old_script = "global_variable_generator_old.py"
+    old_template = "global_variable_template_old.xlsx"
+    if len(sys.argv) == 3:
+        new_script = sys.argv[1]
+        new_template = sys.argv[2]
+    else:
+        new_script = "global_variable_generator.py"
+        new_template = "global_variable_template.xlsx"
 
     #runs files to generate global_variable_table.csv and hmi_tag.csv
     os.system("python {} {}".format(old_script,old_template))
@@ -48,24 +52,26 @@ def main():
     new_hmi_names = pd.DataFrame(new_hmi_table['Define Name'])
 
     #check if plc tables are equal and find inconsistencies
-    if new_plc_names.equals(old_plc_names):
+    plc_difference = dataframe_difference(old_plc_names,new_plc_names)
+
+    if len(plc_difference) == 0:
         print ("Global Variable Tables are consistent\n")
 
     else :
         print ("Global Variable Tables are inconsistent\n")
 
-        difference = dataframe_difference(old_plc_names,new_plc_names)
-        print (difference)
+        print (plc_difference)
 
     #check if hmi tables are equal and find inconsistencies
-    if new_hmi_names.equals(old_hmi_names):
+    hmi_difference = dataframe_difference(old_plc_names,new_plc_names)
+    
+    if len(hmi_difference) == 0:
         print ("HMI Tag tables are consistent\n")
 
     else :
         print ("HMI Tag tables are inconsistent\n")
-
-        difference = dataframe_difference(old_plc_names,new_plc_names)
-        print (difference)
+        
+        print (hmi_difference)
 
 def dataframe_difference(df1, df2):
 
