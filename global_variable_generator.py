@@ -83,8 +83,8 @@ def main():
         write_rec_glob_var_table(global_var_table, var_name, addr, pump_data['type'], pump_data['init_value'])
         
     # parse shelfs and write into global_var_table
+    shelf_curr_addr = shelf_base_addr
     for i in range(shelf_no):
-        shelf_curr_addr = shelf_base_addr + i * shelf_reg_size
         for var_name in shelfs:
             shelf_data = shelfs[var_name]
             name = "s{}_{}".format(i, var_name)
