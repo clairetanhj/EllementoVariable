@@ -54,6 +54,7 @@ def main():
 
     # define common properties
     shelf_no = constants['shelf_no']['init_value']
+    assert("shelf_no" in constants) == True
 
     global_var_table = {}
     hmi_tag_table = {}
