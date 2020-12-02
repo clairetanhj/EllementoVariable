@@ -64,8 +64,8 @@ def main():
     for var_name in constants:
         var_data = constants[var_name]
         
-        constant_curr_addr += int(var_data['addr_offset'])
         addr = "D{}".format(round(float(constant_curr_addr), 1) if "BOOL" in var_data['type'] else int (constant_curr_addr) )
+        constant_curr_addr += int(var_data['addr_offset'])
         
         write_rec_glob_var_table(global_var_table, var_name, addr, var_data['type'], var_data['init_value'], var_data['comment'])
 
